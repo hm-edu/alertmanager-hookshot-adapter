@@ -38,7 +38,7 @@ function silenceLink(alert: { labels: { [key: string]: string; }; }, externalURL
     for (const [label, val] of Object.entries(alert.labels)) {
         filters.push(`matcher=${encodeURIComponent(`${label} = "${val}"`)}`);
     }
-    return `<a href="${externalURL}${filters.join("&")}}">Create Silence</a>`;
+    return `<a href="${externalURL}${filters.join("&")}">Create Silence</a>`;
 }
 
 interface AlertData {
@@ -88,7 +88,7 @@ function transform(data: AlertData): { version: string, empty: boolean } | { ver
             **Annotations**:
             ${Object.entries(alert.annotations).map(([key, value]) => `${key}: ${value}`).join('\n')}
             
-            [Silence](${silenceLink(alert, grafanaUrl)})
+            ${(alert.status === "firing") ? `[Silence](${silenceLink(alert, grafanaUrl)})` : ''}
             `);
         htmlErrors.push(
             `<p>${statusBadge(alert.status, alert.labels.severity)}</p>
@@ -102,9 +102,7 @@ function transform(data: AlertData): { version: string, empty: boolean } | { ver
                     ${Object.entries(alert.annotations).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
                 </ul>
             </p>
-            <p>
-                ${silenceLink(alert, grafanaUrl)}
-            </p>`)
+            ${(alert.status === "firing") ? `<p>${silenceLink(alert, grafanaUrl)}</p>` : ''}`)
     }
     return {
         version: 'v2',
@@ -131,7 +129,7 @@ app.post("/webhook/:id", async (req: Request, res: Response) => {
             res.status(500).send("Failed to forward the data to the upstream service");
         } else {
             res.status(200).send("Data forwarded successfully");
-        }        
+        }
     } catch (error) {
         console.error(error);
         res.status(500).send("Failed to forward the data to the upstream service");
