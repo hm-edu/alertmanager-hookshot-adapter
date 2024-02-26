@@ -34,11 +34,11 @@ function statusBadge(status: "resolved" | "firing", severity: string) {
  * @returns a formatted link that will silence the alert when clicked
  */
 function silenceLink(alert: { labels: { [key: string]: string; }; }, externalURL: string) {
-    var filters = []
+    var filters = [];
     for (const [label, val] of Object.entries(alert.labels)) {
-        filters.push(encodeURIComponent(`${label}="${val}"`));
+        filters.push(`matcher=${encodeURIComponent(`${label} = "${val}"`)}`);
     }
-    return `<a href="${externalURL}#silences/new?filter={${filters.join(",")}}">silence</a>`;
+    return `<a href="${externalURL}${filters.join("&")}}">Create Silence</a>`;
 }
 
 interface AlertData {
