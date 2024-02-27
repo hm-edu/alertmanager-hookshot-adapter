@@ -83,26 +83,27 @@ function transform(data: AlertData): { version: string, empty: boolean } | { ver
     for (const alert of data.alerts) {
         plainErrors.push(
             `**[${alert.status.toUpperCase()} - ${alert.labels.severity}]** - ${alert.labels.alertname}: 
-            **Labels**:
-            ${Object.entries(alert.labels).map(([key, value]) => `${key}: ${value}`).join('\n')}
-            **Annotations**:
-            ${Object.entries(alert.annotations).map(([key, value]) => `${key}: ${value}`).join('\n')}
-            
-            ${(alert.status === "firing") ? `[Silence](${silenceLink(alert, grafanaUrl)})` : ''}
-            `);
+             **Labels**:
+             ${Object.entries(alert.labels).map(([key, value]) => `${key}: ${value}`).join('\n')}
+             **Annotations**:
+             ${Object.entries(alert.annotations).map(([key, value]) => `${key}: ${value}`).join('\n')}
+             
+             ${(alert.status === "firing") ? `[Silence](${silenceLink(alert, grafanaUrl)})` : ''}`);
         htmlErrors.push(
             `<p>${statusBadge(alert.status, alert.labels.severity)}</p>
-            <p>
-                <b>Labels</b>:
-                <ul>
-                    ${Object.entries(alert.labels).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
-                </ul>
-                <b>Annotations</b>:
-                <ul>
-                    ${Object.entries(alert.annotations).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
-                </ul>
-            </p>
-            ${(alert.status === "firing") ? `<p>${silenceLink(alert, grafanaUrl)}</p>` : ''}`)
+             <p>
+                 <b>Labels</b>:
+                 <ul>
+                     ${Object.entries(alert.labels).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
+                 </ul>
+             </p>
+             <p>
+                 <b>Annotations</b>:
+                 <ul>
+                     ${Object.entries(alert.annotations).map(([key, value]) => `<li>${key}: ${value}</li>`).join('')}
+                 </ul>
+             </p>
+             ${(alert.status === "firing") ? `<p>${silenceLink(alert, grafanaUrl)}</p>` : ''}`)
     }
     return {
         version: 'v2',
