@@ -1,4 +1,4 @@
-FROM node:21.6.2 as builder
+FROM node:21.7.0 as builder
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -12,7 +12,7 @@ COPY . .
 
 RUN yarn build
 
-FROM node:21.6.2-slim
+FROM node:21.7.0-slim
 
 ENV NODE_ENV production
 USER node
