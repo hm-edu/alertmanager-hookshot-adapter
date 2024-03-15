@@ -36,7 +36,7 @@ function statusBadge(status: "resolved" | "firing", severity: string) {
 function silenceLink(alert: { labels: { [key: string]: string; }; }, externalURL: string) {
     var filters = [];
     for (const [label, val] of Object.entries(alert.labels)) {
-        filters.push(`matcher=${encodeURIComponent(`${label} = "${val}"`)}`);
+        filters.push(`matcher=${encodeURIComponent(`${label}=${val}`)}`);
     }
     return `<a href="${externalURL}${filters.join("&")}">Create Silence</a>`;
 }
