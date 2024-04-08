@@ -1,12 +1,19 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
+import winston from "winston";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
 const upstream = process.env.UPSTREAM as string;
-
+const logger = winston.createLogger({
+    level: "info",
+    format: winston.format.json(),
+    transports: [
+        new winston.transports.Console(),
+    ],
+});
 /**
  * @param status resolved or firing
  * @param severity from the labels of the alert
@@ -117,6 +124,7 @@ app.use(express.json())
 
 app.post("/webhook/:id", async (req: Request, res: Response) => {
     try {
+        logger.info(`Received data from the alertmanager for the id: ${req.params.id}`);
         var transforedData = transform(req.body as AlertData);
         // Post the data to the upstream hookshot service using the transformed data and the id given in the url
         var response = await fetch(`${upstream}/${req.params.id}`,
@@ -127,12 +135,13 @@ app.post("/webhook/:id", async (req: Request, res: Response) => {
             }
         );
         if (!response.ok) {
+            logger.error(`Failed to forward the data to the upstream service: ${response.body}`);
             res.status(500).send("Failed to forward the data to the upstream service");
         } else {
             res.status(200).send("Data forwarded successfully");
         }
     } catch (error) {
-        console.error(error);
+        logger.error(`Failed to forward the data to the upstream service: ${error}`);
         res.status(500).send("Failed to forward the data to the upstream service");
     }
 });
