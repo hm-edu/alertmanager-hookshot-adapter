@@ -75,13 +75,13 @@ interface AlertData {
     ]
 
 }
-function transform(data: AlertData): { version: string, empty: boolean } | { version: string, plain: string, html: string, msgtype: string } {
+function transform(data: AlertData): { version: string, empty: boolean, msgtype: string }[] | { version: string, plain: string, html: string, msgtype: string }[] {
     if (!data.alerts) {
-        return {
+        return [{
             version: 'v2',
             empty: true,
             msgtype: 'm.text'
-        };
+        }];
     }
 
     const plainErrors = [];
@@ -112,12 +112,16 @@ function transform(data: AlertData): { version: string, empty: boolean } | { ver
              </p>
              ${(alert.status === "firing") ? `<p>${silenceLink(alert, grafanaUrl)}</p>` : ''}`)
     }
-    return {
-        version: 'v2',
-        plain: plainErrors.join(`\n\n`),
-        html: htmlErrors.join(`<br/><br/>`),
-        msgtype: 'm.text'
-    };
+    let alerts = [];
+    for (let i = 0; i < plainErrors.length; i++) {
+        alerts.push({
+            version: 'v2',
+            plain: plainErrors[i],
+            html: htmlErrors[i],
+            msgtype: 'm.text'
+        });
+    }
+    return alerts;
 }
 
 app.use(express.json())
@@ -127,18 +131,20 @@ app.post("/webhook/:id", async (req: Request, res: Response) => {
         logger.info(`Received data from the alertmanager for the id: ${req.params.id}`);
         var transforedData = transform(req.body as AlertData);
         // Post the data to the upstream hookshot service using the transformed data and the id given in the url
-        var response = await fetch(`${upstream}/${req.params.id}`,
-            {
-                method: "POST",
-                headers: new Headers({ 'content-type': 'application/json' }),
-                body: JSON.stringify(transforedData)
+        for (const data of transforedData) {
+            var response = await fetch(`${upstream}/${req.params.id}`,
+                {
+                    method: "POST",
+                    headers: new Headers({ 'content-type': 'application/json' }),
+                    body: JSON.stringify(data)
+                }
+            );
+            if (!response.ok) {
+                logger.error(`Failed to forward the data to the upstream service: ${response.text()}`);
+                res.status(500).send("Failed to forward the data to the upstream service");
+            } else {
+                res.status(200).send("Data forwarded successfully");
             }
-        );
-        if (!response.ok) {
-            logger.error(`Failed to forward the data to the upstream service: ${response.body}`);
-            res.status(500).send("Failed to forward the data to the upstream service");
-        } else {
-            res.status(200).send("Data forwarded successfully");
         }
     } catch (error) {
         logger.error(`Failed to forward the data to the upstream service: ${error}`);
