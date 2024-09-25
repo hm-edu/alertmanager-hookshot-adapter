@@ -9,7 +9,7 @@
     "url": "https://github.com/hm-edu/alertmanager-hookshot-adapter"
   },
   "dependencies": {
-    "@types/express": "^4.17.21",
+    "@types/express": "^5.0.0",
     "@types/node": "^20.11.20",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
