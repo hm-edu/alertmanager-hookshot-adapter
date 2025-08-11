@@ -127,6 +127,7 @@ function transform(data: AlertData): { version: string, empty: boolean, msgtype:
 app.use(express.json())
 
 app.post("/webhook/:id", async (req: Request, res: Response) => {
+    var success = true;
     try {
         logger.info(`Received data from the alertmanager for the id: ${req.params.id}`);
         var transforedData = transform(req.body as AlertData);
@@ -141,13 +142,16 @@ app.post("/webhook/:id", async (req: Request, res: Response) => {
             );
             if (!response.ok) {
                 logger.error(`Failed to forward the data to the upstream service: ${response.text()}`);
-                res.status(500).send("Failed to forward the data to the upstream service");
-            } else {
-                res.status(200).send("Data forwarded successfully");
+                success = false;
             }
         }
     } catch (error) {
         logger.error(`Failed to forward the data to the upstream service: ${error}`);
+        success = false;
+    }
+    if (success) {
+        res.status(200).send("Data forwarded successfully");
+    } else {
         res.status(500).send("Failed to forward the data to the upstream service");
     }
 });
