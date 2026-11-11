@@ -12,7 +12,7 @@ COPY . .
 
 RUN yarn build
 
-FROM node:24.22.3-slim@sha256:4d897dfbf2bed5e4e09128f8b8da96a2bdf36e3cace084a32c9c4e637ec0ff81
+FROM node:24.22.3-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54
 
 ENV NODE_ENV production
 USER node
