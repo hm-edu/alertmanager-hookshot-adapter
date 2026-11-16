@@ -1,4 +1,4 @@
-FROM node:24.22.3@sha256:9d266751ca3d7fdbe651c878ffd5ad0a42fed49a18c283509267c97f025b7496 as builder
+FROM node:26.13.1@sha256:e18c3ccdf7d71619990b0e85639f506e2028a95410999cab24cc373cbd10e0ac as builder
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -12,7 +12,7 @@ COPY . .
 
 RUN yarn build
 
-FROM node:24.22.3-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54
+FROM node:26.13.1-slim@sha256:e6bedef217677b276c591795e169840edd9096dbf13f29df8ef8d1856b8820bc
 
 ENV NODE_ENV production
 USER node
